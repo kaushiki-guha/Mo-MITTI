@@ -12,6 +12,7 @@ import {
 import {Bot, Home, Stethoscope} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
+import { Logo } from './logo';
 
 export function MainSidebar() {
   const pathname = usePathname();
@@ -37,8 +38,8 @@ export function MainSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-sidebar-primary-foreground">Mo&apos; Mitti</h1>
+        <div className="flex items-center gap-2 text-sidebar-primary-foreground">
+            <Logo />
         </div>
       </SidebarHeader>
       <SidebarContent>
