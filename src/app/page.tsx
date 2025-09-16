@@ -1,3 +1,6 @@
+
+'use client';
+
 import Link from "next/link";
 import {
   Alert,
@@ -13,9 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { mockNotifications } from "@/lib/mock-data";
-import { Bell, Bot, ChevronRight, Map, Stethoscope, Wind } from "lucide-react";
-import Image from 'next/image';
+import { mockNotifications, Notification } from "@/lib/mock-data";
+import { Bell, Bot, ChevronRight, Stethoscope, Wind } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const iconMap = {
   bell: Bell,
@@ -23,6 +26,34 @@ const iconMap = {
 };
 
 export default function Dashboard() {
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications.slice(0, 1));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNotifications(prevNotifications => {
+        // Simple logic to cycle through mock notifications
+        const nextIndex = prevNotifications.length % mockNotifications.length;
+        const newNotifications = [...prevNotifications, mockNotifications[nextIndex]];
+        
+        if (prevNotifications.length >= mockNotifications.length) {
+            // Once all are shown, you could clear and start over, or stop.
+            // For this demo, we'll just show the latest few.
+             return newNotifications.slice(-mockNotifications.length);
+        }
+        
+        // This check avoids adding duplicates if the array is not full yet
+        if (!prevNotifications.find(n => n.id === mockNotifications[nextIndex].id)) {
+            return newNotifications;
+        }
+
+        return prevNotifications;
+      });
+    }, 5000); // Add a new notification every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -42,7 +73,7 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {mockNotifications.map((notification) => {
+            {notifications.slice().reverse().map((notification) => {
               const Icon = iconMap[notification.icon as keyof typeof iconMap] || Bell;
               return (
                 <Alert key={notification.id} variant={notification.type === 'alert' ? 'destructive' : 'default'}>
