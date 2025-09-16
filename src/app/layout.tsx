@@ -10,6 +10,7 @@ import { SiteHeader } from '@/components/site-header';
 import { AuthProvider, AuthGuard } from '@/contexts/auth';
 import { Inter } from 'next/font/google';
 import { usePathname } from 'next/navigation';
+import { ThemeProvider } from '@/components/theme-provider';
 
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -37,13 +38,20 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body className={cn('font-body antialiased', 'dark', inter.variable)}>
-        <AuthProvider>
-            <InnerLayout>
-                {children}
-            </InnerLayout>
-        </AuthProvider>
-        <Toaster />
+      <body className={cn('font-body antialiased', inter.variable)}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+              <InnerLayout>
+                  {children}
+              </InnerLayout>
+          </AuthProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

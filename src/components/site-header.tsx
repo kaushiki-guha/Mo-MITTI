@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function SiteHeader() {
   const { user } = useAuth();
@@ -34,7 +35,8 @@ export function SiteHeader() {
         <SidebarTrigger />
         <h1 className="font-semibold text-lg md:text-xl">Dashboard</h1>
       </div>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
