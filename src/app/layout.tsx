@@ -1,4 +1,5 @@
 
+'use client';
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -8,11 +9,15 @@ import { MainSidebar } from '@/components/main-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { AuthProvider, AuthGuard } from '@/contexts/auth';
 import { Inter } from 'next/font/google';
+import { usePathname } from 'next/navigation';
 
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-export const metadata: Metadata = {
+// Using a client component, we can't export metadata directly.
+// This is a workaround for this specific case.
+// For a real app, you'd move this to a server component parent if possible.
+const metadata: Metadata = {
   title: "Mo' Mitti",
   description: 'AI-powered guidance for modern agriculture.',
 };
@@ -25,6 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>{String(metadata.title)}</title>
+        <meta name="description" content={String(metadata.description)} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -43,7 +50,6 @@ export default function RootLayout({
 }
 
 function InnerLayout({ children }: { children: React.ReactNode }) {
-    const { usePathname } = require('next/navigation');
     const pathname = usePathname();
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
