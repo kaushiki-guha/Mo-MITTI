@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from './logo';
+import Link from 'next/link';
 
 export function SiteHeader() {
   const { user } = useAuth();
@@ -33,7 +35,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
-        <h1 className="font-semibold text-lg md:text-xl">Dashboard</h1>
+        <Link href="/">
+          <Logo />
+        </Link>
       </div>
       <div className="ml-auto flex items-center gap-2">
         <ThemeToggle />

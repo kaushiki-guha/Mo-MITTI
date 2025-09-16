@@ -38,9 +38,7 @@ export function MainSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 text-sidebar-primary-foreground">
-            <Logo />
-        </div>
+        
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
