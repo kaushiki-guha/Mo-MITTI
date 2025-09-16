@@ -38,7 +38,7 @@ export function MainSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        
+        {/* The logo is now in the site header */}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
