@@ -32,11 +32,11 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 transition-all duration-300 md:px-6 data-[scrolled=true]:shadow-md">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
-        <Link href="/" className="flex items-center gap-2">
-          <Logo />
+        <Link href="/" className="flex items-center gap-2 group">
+          <Logo className="transition-all duration-300 group-hover:[filter:drop-shadow(0_0_4px_hsl(var(--primary)/0.7))]" />
         </Link>
       </div>
       <div className="ml-auto flex items-center gap-2">

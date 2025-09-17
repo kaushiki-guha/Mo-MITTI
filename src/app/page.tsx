@@ -26,41 +26,68 @@ const iconMap = {
   wind: Wind,
 };
 
+const mascotMessages = [
+    "Did you know? Companion planting can naturally deter pests!",
+    "Time to check your soil's moisture levels.",
+    "Healthy soil, healthy crops, happy farmer!",
+    "Ask me anything about your crops!",
+    "Don't forget to rotate your crops to keep the soil healthy.",
+    "A little mulch can go a long way in retaining water."
+];
+
 export default function Dashboard() {
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications.slice(0, 1));
+  const [mascotMessage, setMascotMessage] = useState(mascotMessages[0]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const notificationInterval = setInterval(() => {
       setNotifications(prevNotifications => {
-        // Simple logic to cycle through mock notifications
         const nextIndex = prevNotifications.length % mockNotifications.length;
         const newNotifications = [...prevNotifications, mockNotifications[nextIndex]];
         
         if (prevNotifications.length >= mockNotifications.length) {
-            // Once all are shown, you could clear and start over, or stop.
-            // For this demo, we'll just show the latest few.
              return newNotifications.slice(-mockNotifications.length);
         }
         
-        // This check avoids adding duplicates if the array is not full yet
         if (!prevNotifications.find(n => n.id === mockNotifications[nextIndex].id)) {
             return newNotifications;
         }
 
         return prevNotifications;
       });
-    }, 5000); // Add a new notification every 5 seconds
+    }, 5000); 
 
-    return () => clearInterval(interval);
+    const mascotInterval = setInterval(() => {
+        setMascotMessage(prevMessage => {
+            const currentIndex = mascotMessages.indexOf(prevMessage);
+            const nextIndex = (currentIndex + 1) % mascotMessages.length;
+            return mascotMessages[nextIndex];
+        });
+    }, 7000);
+
+    return () => {
+        clearInterval(notificationInterval);
+        clearInterval(mascotInterval);
+    };
   }, []);
 
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="animate-fade-in-up">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to Mo'MITTI</h1>
-        <p className="text-muted-foreground">Your AI-powered partner in agriculture.</p>
+      <div className="flex justify-between items-start animate-fade-in-up">
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to Mo'MITTI</h1>
+            <p className="text-muted-foreground">Your AI-powered partner in agriculture.</p>
+        </div>
+        <div className="hidden md:flex items-center justify-center gap-4 p-4 rounded-lg bg-card border transition-all duration-300 hover:shadow-lg">
+            <Mascot className="w-20 h-24 flex-shrink-0" />
+            <div className="relative">
+                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg shadow-inner max-w-xs">{mascotMessage}</p>
+                <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-muted"></div>
+            </div>
+        </div>
       </div>
+
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="lg:col-span-2 animate-fade-in-up" style={{animationDelay: '0.1s'}}>

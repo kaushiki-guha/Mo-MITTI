@@ -11,6 +11,7 @@ import { AuthProvider, AuthGuard } from '@/contexts/auth';
 import { Inter } from 'next/font/google';
 import { usePathname } from 'next/navigation';
 import { ThemeProvider } from '@/components/theme-provider';
+import React from 'react';
 
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -60,9 +61,26 @@ export default function RootLayout({
 function InnerLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAuthPage = pathname === '/login' || pathname === '/signup';
+    const mainRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const mainEl = mainRef.current;
+        if (!mainEl) return;
+
+        const handleScroll = () => {
+            const isScrolled = mainEl.scrollTop > 0;
+            const headerEl = mainEl.parentElement?.querySelector('header');
+            if (headerEl) {
+                headerEl.setAttribute('data-scrolled', String(isScrolled));
+            }
+        };
+
+        mainEl.addEventListener('scroll', handleScroll, { passive: true });
+        return () => mainEl.removeEventListener('scroll', handleScroll);
+    }, []);
 
     if (isAuthPage) {
-        return <main className="flex-1 p-4 md:p-8">{children}</main>;
+        return <main ref={mainRef} className="flex-1 p-4 md:p-8 overflow-y-auto">{children}</main>;
     }
 
     return (
@@ -71,7 +89,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                 <MainSidebar />
                 <div className="flex flex-col w-full">
                     <SiteHeader />
-                    <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+                    <main ref={mainRef} className="flex-1 p-4 md:p-8 overflow-y-auto">
                         {children}
                     </main>
                 </div>
