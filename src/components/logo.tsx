@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 
 export function Logo({ className }: { className?: string }) {
@@ -16,7 +17,7 @@ export function Logo({ className }: { className?: string }) {
         fontWeight="600"
         fill="currentColor"
       >
-        Mo'MITTI
+        MoMITTI
       </text>
       <path
         d="M160 28 C 158 20, 162 14, 168 12"

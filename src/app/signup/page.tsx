@@ -58,7 +58,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create an Account</CardTitle>
-          <CardDescription>Join Mo'MITTI to get started with AI-powered farming.</CardDescription>
+          <CardDescription>Join MoMITTI to get started with AI-powered farming.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
