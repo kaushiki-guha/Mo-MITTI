@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import {Bot, Home, Stethoscope, User} from 'lucide-react';
+import {Bot, Home, Stethoscope, User, ClipboardList} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './logo';
@@ -33,6 +33,11 @@ export function MainSidebar() {
       href: '/disease-detection',
       label: 'Disease Detection',
       icon: Stethoscope,
+    },
+    {
+        href: '/farm-details',
+        label: 'Farm Details',
+        icon: ClipboardList,
     },
     {
       href: '/profile',
@@ -66,7 +71,7 @@ export function MainSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <div className="text-xs text-center text-sidebar-foreground/50 p-4">
-            &copy; 2024 Mo&apos; Mitti
+            &copy; 2024 Mo' Mitti
         </div>
       </SidebarFooter>
     </Sidebar>
