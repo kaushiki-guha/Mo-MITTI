@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, X, Plus, Trash2 } from 'lucide-react';
@@ -133,6 +133,9 @@ export default function FarmDetailsPage() {
                     <FormControl>
                       <Input type="number" placeholder="e.g., 50" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      Use a tool like USGS EarthExplorer or Google Maps to find the area of your land.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -159,7 +162,7 @@ export default function FarmDetailsPage() {
                     <span>Farm Land Shape</span>
                      {landShapePreview && <Button variant="ghost" size="icon" onClick={clearLandShapePreview}><X className="h-4 w-4" /></Button>}
                     </CardTitle>
-                    <CardDescription>Upload a satellite or drone image of your farm land.</CardDescription>
+                    <CardDescription>Upload a satellite or drone image of your farm land. You can get this from a service like USGS EarthExplorer or by taking a screenshot from Google Maps.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <FormField
