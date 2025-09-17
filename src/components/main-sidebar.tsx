@@ -71,7 +71,7 @@ export function MainSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <div className="text-xs text-center text-sidebar-foreground/50 p-4">
-            &copy; 2024 MoMITTI
+            &copy; 2024 Mo'MITTI
         </div>
       </SidebarFooter>
     </Sidebar>

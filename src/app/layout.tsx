@@ -19,7 +19,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 // This is a workaround for this specific case.
 // For a real app, you'd move this to a server component parent if possible.
 const metadata: Metadata = {
-  title: "MoMITTI",
+  title: "Mo'MITTI",
   description: 'AI-powered guidance for modern agriculture.',
 };
 
