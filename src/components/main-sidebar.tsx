@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -9,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import {Bot, Home, Stethoscope} from 'lucide-react';
+import {Bot, Home, Stethoscope, User} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './logo';
@@ -33,6 +34,11 @@ export function MainSidebar() {
       label: 'Disease Detection',
       icon: Stethoscope,
     },
+    {
+      href: '/profile',
+      label: 'Profile',
+      icon: User,
+    }
   ];
 
   return (
