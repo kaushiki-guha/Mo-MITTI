@@ -17,8 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { mockNotifications, Notification } from "@/lib/mock-data";
-import { Bell, Bot, ChevronRight, Stethoscope, Wind } from "lucide-react";
+import { Bell, ChevronRight, Stethoscope, Wind } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Mascot } from "@/components/mascot";
 
 const iconMap = {
   bell: Bell,
@@ -57,7 +58,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to MoMITTI</h1>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to Mo'MITTI</h1>
         <p className="text-muted-foreground">Your AI-powered partner in agriculture.</p>
       </div>
 
@@ -91,7 +92,7 @@ export default function Dashboard() {
             <Link href="/chat" className="block">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
-                  <Bot className="w-6 h-6 text-primary" />
+                  <Mascot className="w-6 h-6 text-primary" />
                   AI Crop Guidance
                 </CardTitle>
               </CardHeader>

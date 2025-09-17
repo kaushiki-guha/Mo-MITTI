@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, Loader2, User } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Mascot } from '@/components/mascot';
 
 const chatSchema = z.object({
   query: z.string().min(1, 'Please enter a question.'),
@@ -100,7 +102,7 @@ export default function ChatPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
                 <Avatar>
-                    <AvatarFallback><Bot /></AvatarFallback>
+                    <AvatarFallback><Mascot className="w-6 h-6" /></AvatarFallback>
                 </Avatar>
               <span>AI Response</span>
             </CardTitle>

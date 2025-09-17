@@ -10,10 +10,11 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import {Bot, Home, Stethoscope, User, ClipboardList} from 'lucide-react';
+import {Home, Stethoscope, User, ClipboardList} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './logo';
+import { Mascot } from './mascot';
 
 export function MainSidebar() {
   const pathname = usePathname();
@@ -27,7 +28,7 @@ export function MainSidebar() {
     {
       href: '/chat',
       label: 'AI Crop Guidance',
-      icon: Bot,
+      icon: Mascot,
     },
     {
       href: '/disease-detection',

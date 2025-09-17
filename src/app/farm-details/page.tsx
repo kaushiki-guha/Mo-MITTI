@@ -10,11 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, X, Bot, Plus, Trash2 } from 'lucide-react';
+import { Loader2, X, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeCropGrowth, AnalyzeCropGrowthOutput } from '@/ai/flows/analyze-crop-growth';
 import { Separator } from '@/components/ui/separator';
+import { Mascot } from '@/components/mascot';
 
 const cropSchema = z.object({
   name: z.string().min(1, 'Crop name is required.'),
@@ -284,7 +285,7 @@ export default function FarmDetailsPage() {
             {loading ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing All Crops...</>
             ) : (
-              <> <Bot className="mr-2" /> Analyze All Crops</>
+              <> <Mascot className="mr-2 h-6 w-6" /> Analyze All Crops</>
             )}
           </Button>
         </form>
