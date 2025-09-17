@@ -16,7 +16,7 @@ export function Logo({ className }: { className?: string }) {
         fontWeight="600"
         fill="currentColor"
       >
-        Mo&apos; MITTI
+        Mo'MITTI
       </text>
       <path
         d="M160 28 C 158 20, 162 14, 168 12"
