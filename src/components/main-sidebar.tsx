@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import {Home, Stethoscope, User, ClipboardList} from 'lucide-react';
+import {Home, Stethoscope, User, ClipboardList, Leaf} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './logo';
@@ -39,6 +39,11 @@ export function MainSidebar() {
         href: '/farm-details',
         label: 'Farm Details',
         icon: ClipboardList,
+    },
+    {
+      href: '/vegetation-analysis',
+      label: 'Vegetation Analysis',
+      icon: Leaf,
     },
     {
       href: '/profile',
