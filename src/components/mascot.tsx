@@ -13,42 +13,48 @@ export function Mascot({ className }: { className?: string }) {
     >
       <g transform="translate(5, 5)">
         {/* Hat */}
-        <path d="M 40 50 Q 70 35, 100 50 L 120 45 Q 70 20, 20 45 Z" fill="#D2B48C" stroke="#8B4513" />
-        <path d="M 50 48 L 50 30 Q 70 25, 90 30 L 90 48 Z" fill="#D2B48C" stroke="#8B4513" />
-        
+        <path d="M 20,50 C 20,30 50,25 75,25 C 100,25 130,30 130,50 L 110,48 C 110,40 95,35 75,35 C 55,35 40,40 40,48 Z" fill="#A0522D" stroke="#5C2E00" strokeWidth="2.5" />
+        <path d="M 45,28 C 45,20 60,15 75,15 C 90,15 105,20 105,28 L 100,28 L 50,28 Z" fill="#8B4513" stroke="#5C2E00" strokeWidth="2.5" />
+
         {/* Head */}
-        <ellipse cx="70" cy="65" rx="25" ry="20" fill="#FFD700" stroke="#DAA520" />
-        <path d="M 55 65 h 30" stroke="#8B4513" strokeDasharray="4 2" />
-        <path d="M 60 60 L 62 62 M 62 60 L 60 62" stroke="#8B4513" strokeLinecap="round"/>
-        <path d="M 78 60 L 80 62 M 80 60 L 78 62" stroke="#8B4513" strokeLinecap="round"/>
+        <ellipse cx="75" cy="70" rx="35" ry="30" fill="#DEB887" stroke="#8B4513" strokeWidth="2" />
+        <path d="M 60 65 L 68 73 M 68 65 L 60 73" stroke="#5C2E00" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 82 65 L 90 73 M 90 65 L 82 73" stroke="#5C2E00" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 65,85 Q 75,95 85,85" stroke="#5C2E00" strokeWidth="2" strokeLinecap="round" />
+        <path d="M 70 85 L 72 82 M 75 85 L 77 82 M 80 85 L 82 82" stroke="#5C2E00" strokeWidth="1" strokeLinecap="round" />
 
         {/* Body */}
-        <path d="M 45 85 C 55 90, 85 90, 95 85 L 100 130 H 40 Z" fill="#F0E68C" stroke="#BDB76B" />
+        <path d="M 40 100 H 110 L 105 160 H 45 Z" fill="#ADD8E6" stroke="#4682B4" strokeWidth="2"/>
+        {/* Plaid Pattern */}
+        <path d="M 40 120 H 110 M 40 140 H 110 M 60 100 V 160 M 90 100 V 160" stroke="#4682B4" strokeWidth="1" opacity="0.6"/>
 
-        {/* Collar */}
-        <path d="M 60 85 L 50 95 L 70 90 L 90 95 L 80 85" fill="#F0E68C" stroke="#BDB76B" />
+         {/* Collar */}
+        <path d="M 60 100 L 50 110 L 75 105 L 100 110 L 90 100" fill="none" stroke="#F0E68C" strokeWidth="4" strokeLinecap="round"/>
+
 
         {/* Arms (straw) */}
-        <g stroke="#D2B48C">
-          <path d="M 45 100 L 10 110" />
-          <path d="M 45 100 L 5 100" />
-          <path d="M 45 100 L 15 90" />
-          <path d="M 95 100 L 130 110" />
-          <path d="M 95 100 L 135 100" />
-          <path d="M 95 100 L 125 90" />
+        <g stroke="#F0E68C" strokeWidth="3" strokeLinecap="round">
+          <path d="M 40 115 L 5 130" />
+          <path d="M 40 115 L 0 115" />
+          <path d="M 40 115 L 10 100" />
+          <path d="M 110 115 L 145 130" />
+          <path d="M 110 115 L 150 115" />
+          <path d="M 110 115 L 140 100" />
         </g>
-        
-        {/* Legs */}
-        <path d="M 40 130 L 45 200 H 60 L 55 130 Z" fill="#A9A9A9" stroke="#696969" />
-        <path d="M 85 130 L 90 200 H 75 L 80 130 Z" fill="#A9A9A9" stroke="#696969" />
 
-        {/* Grass */}
-        <g stroke="#8B4513" transform="translate(0, 200)">
-            <path d="M 20 0 C 25 10, 35 10, 40 0" />
-            <path d="M 40 0 C 45 15, 55 15, 60 0" />
-            <path d="M 60 0 C 65 10, 75 10, 80 0" />
-            <path d="M 80 0 C 85 15, 95 15, 100 0" />
-            <path d="M 100 0 C 105 10, 115 10, 120 0" />
+        {/* Legs */}
+        <path d="M 45 160 L 50 210 H 65 L 60 160 Z" fill="#4682B4" stroke="#2c516d" strokeWidth="2" />
+        <path d="M 95 160 L 100 210 H 85 L 90 160 Z" fill="#4682B4" stroke="#2c516d" strokeWidth="2" />
+
+        {/* Straw from legs */}
+         <g stroke="#F0E68C" strokeWidth="3" strokeLinecap="round">
+            <path d="M 52 210 L 45 220" />
+            <path d="M 58 210 L 60 220" />
+            <path d="M 63 210 L 70 218" />
+
+            <path d="M 87 210 L 80 218" />
+            <path d="M 92 210 L 95 220" />
+            <path d="M 98 210 L 105 220" />
         </g>
       </g>
     </svg>
