@@ -50,12 +50,12 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="animate-fade-in-up">
         <h1 className="text-3xl font-bold tracking-tight font-headline">AI Crop Guidance</h1>
         <p className="text-muted-foreground">Ask our AI assistant for advice on crop cultivation, soil health, and more.</p>
       </div>
 
-      <Card>
+      <Card className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>
         <CardHeader>
           <CardTitle>Ask a Question</CardTitle>
           <CardDescription>Enter your question below and our AI will provide guidance.</CardDescription>
@@ -86,7 +86,7 @@ export default function ChatPage() {
       </Card>
 
       {lastQuery && (
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-4 animate-fade-in-up">
               <Avatar>
                   <AvatarFallback><User /></AvatarFallback>
               </Avatar>
@@ -98,7 +98,7 @@ export default function ChatPage() {
       )}
 
       {(loading || result) && (
-        <Card>
+        <Card className="animate-fade-in-up">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
                 <Avatar>

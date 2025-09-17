@@ -81,12 +81,12 @@ export default function DiseaseDetectionPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="animate-fade-in-up">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Disease Detection</h1>
         <p className="text-muted-foreground">Upload an image of a plant to detect diseases and get remedy suggestions.</p>
       </div>
 
-      <Card>
+      <Card className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>
         <CardHeader>
           <CardTitle>Upload Image</CardTitle>
           <CardDescription>Select an image file of a plant leaf or stem.</CardDescription>
@@ -128,7 +128,7 @@ export default function DiseaseDetectionPage() {
       </Card>
       
       {preview && (
-        <Card>
+        <Card className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span>Image Preview</span>
@@ -145,7 +145,7 @@ export default function DiseaseDetectionPage() {
 
 
       {(loading || result) && (
-        <Card>
+        <Card className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>
           <CardHeader>
             <CardTitle>Analysis Result</CardTitle>
           </CardHeader>

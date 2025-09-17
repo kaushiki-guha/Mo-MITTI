@@ -57,13 +57,13 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="animate-fade-in-up">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to Mo'MITTI</h1>
         <p className="text-muted-foreground">Your AI-powered partner in agriculture.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5" />
@@ -77,7 +77,7 @@ export default function Dashboard() {
             {notifications.slice().reverse().map((notification) => {
               const Icon = iconMap[notification.icon as keyof typeof iconMap] || Bell;
               return (
-                <Alert key={notification.id} variant={notification.type === 'alert' ? 'destructive' : 'default'}>
+                <Alert key={notification.id} variant={notification.type === 'alert' ? 'destructive' : 'default'} className="animate-fade-in-up">
                   <Icon className="w-4 h-4" />
                   <AlertTitle>{notification.title}</AlertTitle>
                   <AlertDescription>{notification.description}</AlertDescription>
@@ -88,7 +88,7 @@ export default function Dashboard() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="hover:border-primary transition-colors">
+          <Card className="hover:border-primary transition-all hover:scale-105 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
             <Link href="/chat" className="block">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function Dashboard() {
               </CardFooter>
             </Link>
           </Card>
-           <Card className="hover:border-primary transition-colors">
+           <Card className="hover:border-primary transition-all hover:scale-105 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
             <Link href="/disease-detection" className="block">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
