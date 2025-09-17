@@ -19,13 +19,6 @@ export function Logo({ className }: { className?: string }) {
       >
         Mo'MITTI
       </text>
-      <path
-        d="M160 28 C 158 20, 162 14, 168 12"
-        stroke="hsl(var(--primary))"
-        strokeWidth="2.5"
-        fill="none"
-        strokeLinecap="round"
-      />
     </svg>
   );
 }
