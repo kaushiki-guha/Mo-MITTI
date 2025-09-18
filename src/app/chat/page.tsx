@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mascot } from '@/components/mascot';
+import { Separator } from '@/components/ui/separator';
 
 const chatSchema = z.object({
   query: z.string().min(1, 'Please enter a question.'),
@@ -109,15 +110,37 @@ export default function ChatPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Separator className="my-2" />
                 <Skeleton className="h-4 w-[200px]" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full" />
               </div>
             ) : result ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p>{result.answer}</p>
+              <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
+                <p className="lead">{result.introduction}</p>
+
+                <div>
+                    <h3 className="text-lg font-semibold">Key Recommendations</h3>
+                    <ul className="space-y-2 list-none p-0">
+                        {result.keyRecommendations.map((rec, index) => (
+                            <li key={index} className="flex items-start gap-3">
+                                <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                                <span>{rec}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                    <h3 className="text-lg font-semibold">Detailed Explanation</h3>
+                    <p>{result.detailedExplanation}</p>
+                </div>
               </div>
             ) : null}
           </CardContent>

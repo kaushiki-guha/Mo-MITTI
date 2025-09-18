@@ -17,7 +17,9 @@ const AskCropQuestionInputSchema = z.object({
 export type AskCropQuestionInput = z.infer<typeof AskCropQuestionInputSchema>;
 
 const AskCropQuestionOutputSchema = z.object({
-  answer: z.string().describe('The AI generated answer to the crop question.'),
+  introduction: z.string().describe("A brief introduction to the topic of the user's question."),
+  keyRecommendations: z.array(z.string()).describe('A list of key recommendations or steps.'),
+  detailedExplanation: z.string().describe('A more detailed explanation of the recommendations.'),
 });
 export type AskCropQuestionOutput = z.infer<typeof AskCropQuestionOutputSchema>;
 
@@ -31,7 +33,8 @@ const prompt = ai.definePrompt({
   output: {schema: AskCropQuestionOutputSchema},
   prompt: `You are an AI assistant specialized in providing guidance on crop cultivation.
   A farmer has asked the following question: {{{query}}}
-  Provide a helpful and informative answer to improve their farming practices and yields.`,
+  Provide a helpful and informative answer to improve their farming practices and yields.
+  Structure your response with an introduction, a list of key recommendations, and a detailed explanation.`,
 });
 
 const askCropQuestionFlow = ai.defineFlow(
