@@ -24,6 +24,8 @@ const AnalyzeVegetationOutputSchema = z.object({
   vegetationIndices: z.object({
     ndvi: z.number().describe("The estimated Normalized Difference Vegetation Index (NDVI) value, ranging from -1 to 1."),
     savi: z.number().describe("The estimated Soil-Adjusted Vegetation Index (SAVI) value."),
+    chlorophyllContent: z.number().describe("The estimated chlorophyll content (e.g., in mg/m^2 or as an index value like CCI)."),
+    moistureLevel: z.number().describe("The estimated soil moisture level (e.g., as a percentage or a relative index).")
   }),
   soilIndices: z.object({
     bi: z.number().describe("The estimated Brightness Index (BI), indicating soil brightness."),
@@ -46,10 +48,11 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert in agricultural remote sensing and image analysis.
   Analyze the provided image of a crop field. Your task is to:
   1.  Estimate the Normalized Difference Vegetation Index (NDVI) and Soil-Adjusted Vegetation Index (SAVI) from the image.
-  2.  Estimate soil indices like the Brightness Index (BI) and Color Index (CI) based on visible soil patches.
-  3.  Conceptually describe how you would perform noise removal (e.g., atmospheric effects, sensor noise) on this image.
-  4.  Describe the segmentation process to distinguish between vegetation and soil or other objects.
-  5.  Provide a summary analysis of the crop and soil health based on the estimated indices and visual inspection.
+  2.  Estimate the chlorophyll content and moisture level from the image.
+  3.  Estimate soil indices like the Brightness Index (BI) and Color Index (CI) based on visible soil patches.
+  4.  Conceptually describe how you would perform noise removal (e.g., atmospheric effects, sensor noise) on this image.
+  5.  Describe the segmentation process to distinguish between vegetation and soil or other objects.
+  6.  Provide a summary analysis of the crop and soil health based on the estimated indices and visual inspection.
 
   Image: {{media url=photoDataUri}}
   `,

@@ -161,7 +161,7 @@ export default function VegetationAnalysisPage() {
               <div className="space-y-6">
                 <div>
                     <h3 className="text-xl font-semibold text-primary mb-2">Vegetation Indices</h3>
-                    <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
                         <div className="p-4 bg-muted rounded-lg">
                             <p className="text-sm text-muted-foreground">NDVI</p>
                             <p className="text-2xl font-bold">{result.vegetationIndices.ndvi.toFixed(3)}</p>
@@ -169,6 +169,14 @@ export default function VegetationAnalysisPage() {
                         <div className="p-4 bg-muted rounded-lg">
                             <p className="text-sm text-muted-foreground">SAVI</p>
                             <p className="text-2xl font-bold">{result.vegetationIndices.savi.toFixed(3)}</p>
+                        </div>
+                        <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Chlorophyll</p>
+                            <p className="text-2xl font-bold">{result.vegetationIndices.chlorophyllContent.toFixed(2)}</p>
+                        </div>
+                        <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Moisture</p>
+                            <p className="text-2xl font-bold">{result.vegetationIndices.moistureLevel.toFixed(2)}%</p>
                         </div>
                     </div>
                 </div>
