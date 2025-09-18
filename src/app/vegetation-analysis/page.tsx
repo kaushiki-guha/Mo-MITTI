@@ -82,8 +82,8 @@ export default function VegetationAnalysisPage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="animate-fade-in-up">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Vegetation Analysis</h1>
-        <p className="text-muted-foreground">Upload a crop image to analyze vegetation indices and health.</p>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Vegetation & Soil Analysis</h1>
+        <p className="text-muted-foreground">Upload a crop image to analyze vegetation indices and soil properties.</p>
       </div>
 
       <Card className="animate-fade-in-up" style={{animationDelay: '0.1s'}}>
@@ -169,6 +169,20 @@ export default function VegetationAnalysisPage() {
                         <div className="p-4 bg-muted rounded-lg">
                             <p className="text-sm text-muted-foreground">SAVI</p>
                             <p className="text-2xl font-bold">{result.vegetationIndices.savi.toFixed(3)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className="text-xl font-semibold text-primary mb-2">Soil Indices</h3>
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                        <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Brightness Index (BI)</p>
+                            <p className="text-2xl font-bold">{result.soilIndices.bi.toFixed(3)}</p>
+                        </div>
+                        <div className="p-4 bg-muted rounded-lg">
+                            <p className="text-sm text-muted-foreground">Color Index (CI)</p>
+                            <p className="text-2xl font-bold">{result.soilIndices.ci.toFixed(3)}</p>
                         </div>
                     </div>
                 </div>

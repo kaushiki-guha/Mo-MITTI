@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview Analyzes an image to determine vegetation indices and provides analysis.
+ * @fileOverview Analyzes an image to determine vegetation and soil indices and provides analysis.
  *
- * - analyzeVegetation - A function that takes a crop image and returns vegetation analysis.
+ * - analyzeVegetation - A function that takes a crop image and returns vegetation and soil analysis.
  * - AnalyzeVegetationInput - The input type for the analyzeVegetation function.
  * - AnalyzeVegetationOutput - The return type for the analyzeVegetation function.
  */
@@ -25,7 +25,11 @@ const AnalyzeVegetationOutputSchema = z.object({
     ndvi: z.number().describe("The estimated Normalized Difference Vegetation Index (NDVI) value, ranging from -1 to 1."),
     savi: z.number().describe("The estimated Soil-Adjusted Vegetation Index (SAVI) value."),
   }),
-  analysis: z.string().describe("A summary of the vegetation health based on the indices, including noise removal and segmentation observations."),
+  soilIndices: z.object({
+    bi: z.number().describe("The estimated Brightness Index (BI), indicating soil brightness."),
+    ci: z.number().describe("The estimated Color Index (CI), indicating soil color characteristics."),
+  }),
+  analysis: z.string().describe("A summary of the vegetation and soil health based on the indices, including noise removal and segmentation observations."),
   noiseRemoval: z.string().describe("Description of how noise was accounted for in the analysis."),
   segmentation: z.string().describe("Description of how the image was segmented to identify vegetation."),
 });
@@ -42,9 +46,10 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert in agricultural remote sensing and image analysis.
   Analyze the provided image of a crop field. Your task is to:
   1.  Estimate the Normalized Difference Vegetation Index (NDVI) and Soil-Adjusted Vegetation Index (SAVI) from the image.
-  2.  Conceptually describe how you would perform noise removal (e.g., atmospheric effects, sensor noise) on this image.
-  3.  Describe the segmentation process to distinguish between vegetation and soil or other objects.
-  4.  Provide a summary analysis of the crop's health based on the estimated indices and visual inspection.
+  2.  Estimate soil indices like the Brightness Index (BI) and Color Index (CI) based on visible soil patches.
+  3.  Conceptually describe how you would perform noise removal (e.g., atmospheric effects, sensor noise) on this image.
+  4.  Describe the segmentation process to distinguish between vegetation and soil or other objects.
+  5.  Provide a summary analysis of the crop and soil health based on the estimated indices and visual inspection.
 
   Image: {{media url=photoDataUri}}
   `,
