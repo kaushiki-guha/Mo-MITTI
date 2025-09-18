@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, X, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { analyzeCropGrowth, AnalyzeCropGrowthOutput } from '@/ai/flows/analyze-crop-growth';
+import { analyzeVegetation, AnalyzeVegetationOutput } from '@/ai/flows/vegetation-analysis';
 import { Separator } from '@/components/ui/separator';
 import { Mascot } from '@/components/mascot';
 
@@ -21,7 +21,7 @@ const cropSchema = z.object({
   name: z.string().min(1, 'Crop name is required.'),
   growthImage: z.any().refine((files) => files?.length === 1, 'Please upload an image.'),
   preview: z.string().optional(),
-  analysisResult: z.custom<AnalyzeCropGrowthOutput>().optional(),
+  analysisResult: z.custom<AnalyzeVegetationOutput>().optional(),
 });
 
 const farmDetailsSchema = z.object({
@@ -44,7 +44,7 @@ export default function FarmDetailsPage() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: 'crops',
   });
@@ -86,20 +86,23 @@ export default function FarmDetailsPage() {
     setLoading(true);
     
     const analysisPromises = data.crops.map(async (crop, index) => {
+      // Clear previous results before new analysis
+      update(index, { ...crop, analysisResult: undefined });
+
       const file = crop.growthImage[0];
       if (!file) return null;
 
-      return new Promise<AnalyzeCropGrowthOutput | null>((resolve) => {
+      return new Promise<AnalyzeVegetationOutput | null>((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = async () => {
           const base64data = reader.result as string;
           try {
-            const response = await analyzeCropGrowth({ photoDataUri: base64data });
+            const response = await analyzeVegetation({ photoDataUri: base64data });
             form.setValue(`crops.${index}.analysisResult`, response);
             resolve(response);
           } catch (error) {
-            console.error('Error analyzing crop growth:', error);
+            console.error('Error analyzing vegetation:', error);
             resolve(null);
           }
         };
@@ -252,22 +255,63 @@ export default function FarmDetailsPage() {
                   )}
                   
                   {(loading || form.watch(`crops.${index}.analysisResult`)) && (
-                    <div className="pt-4">
+                    <div className="pt-4 space-y-6">
                         <Separator />
-                         <h4 className="text-lg font-semibold mt-4">Growth Stage Analysis</h4>
+                         <h4 className="text-lg font-semibold -mb-2">Spectral Analysis</h4>
                          {loading && !form.watch(`crops.${index}.analysisResult`) ? (
-                              <div className="space-y-4 mt-2">
+                              <div className="space-y-4">
                                 <Skeleton className="h-6 w-[200px]" />
                                 <Skeleton className="h-4 w-full" />
-                              </div>
-                         ) : form.watch(`crops.${index}.analysisResult`) ? (
-                            <div className="space-y-2 mt-2">
-                                <h3 className="text-xl font-semibold text-primary">{form.watch(`crops.${index}.analysisResult`)?.growthStage}</h3>
-                                <div>
-                                    <h4 className="font-semibold">Analysis:</h4>
-                                    <p className="text-muted-foreground">{form.watch(`crops.${index}.analysisResult`)?.analysis}</p>
-                                </div>
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-[300px]" />
                             </div>
+                         ) : form.watch(`crops.${index}.analysisResult`) ? (
+                            (result => result && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-primary mb-2">Vegetation Indices</h3>
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">NDVI</p>
+                                                <p className="text-2xl font-bold">{result.vegetationIndices.ndvi.toFixed(3)}</p>
+                                            </div>
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">SAVI</p>
+                                                <p className="text-2xl font-bold">{result.vegetationIndices.savi.toFixed(3)}</p>
+                                            </div>
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">Chlorophyll</p>
+                                                <p className="text-2xl font-bold">{result.vegetationIndices.chlorophyllContent.toFixed(2)}</p>
+                                            </div>
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">Moisture</p>
+                                                <p className="text-2xl font-bold">{result.vegetationIndices.moistureLevel.toFixed(2)}%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-primary mb-2">Soil Indices</h3>
+                                        <div className="grid grid-cols-2 gap-4 text-center">
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">Brightness Index (BI)</p>
+                                                <p className="text-2xl font-bold">{result.soilIndices.bi.toFixed(3)}</p>
+                                            </div>
+                                            <div className="p-4 bg-muted rounded-lg">
+                                                <p className="text-sm text-muted-foreground">Color Index (CI)</p>
+                                                <p className="text-2xl font-bold">{result.soilIndices.ci.toFixed(3)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <Separator />
+                                    
+                                    <div>
+                                        <h4 className="font-semibold text-lg">Overall Analysis</h4>
+                                        <p className="text-muted-foreground">{result.analysis}</p>
+                                    </div>
+                                </div>
+                            ))(form.watch(`crops.${index}.analysisResult`))
                          ) : null}
                     </div>
                   )}
@@ -284,7 +328,7 @@ export default function FarmDetailsPage() {
             </CardContent>
           </Card>
 
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} size="lg">
             {loading ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing All Crops...</>
             ) : (
@@ -296,3 +340,5 @@ export default function FarmDetailsPage() {
     </div>
   );
 }
+
+    
