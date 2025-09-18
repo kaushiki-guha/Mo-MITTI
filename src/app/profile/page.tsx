@@ -12,13 +12,15 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { getAuth, updateProfile } from 'firebase/auth';
+import { firebaseApp } from '@/lib/firebase';
 
 const profileSchema = z.object({
     name: z.string().min(1, 'Name is required.'),
@@ -37,11 +39,14 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
+const LOCAL_STORAGE_KEY = 'profile_data';
+
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const { toast } = useToast();
+  const auth = getAuth(firebaseApp);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -51,6 +56,36 @@ export default function ProfilePage() {
       farmingStatus: 'independent',
     },
   });
+
+  useEffect(() => {
+    if (user) {
+        const savedData = localStorage.getItem(`${LOCAL_STORAGE_KEY}_${user.uid}`);
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            // Coerce string to Date object
+            if(parsed.dob) {
+                parsed.dob = new Date(parsed.dob);
+            }
+            form.reset(parsed);
+        } else {
+            form.reset({
+                name: user.displayName || '',
+                contact: '',
+                farmingStatus: 'independent',
+            });
+        }
+    }
+  }, [user, form]);
+  
+  // Auto-save on change
+  useEffect(() => {
+    if (user) {
+        const subscription = form.watch((value) => {
+            localStorage.setItem(`${LOCAL_STORAGE_KEY}_${user.uid}`, JSON.stringify(value));
+        });
+        return () => subscription.unsubscribe();
+    }
+  }, [form, user]);
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -86,26 +121,68 @@ export default function ProfilePage() {
 
   async function onSubmit(data: ProfileFormValues) {
     setLoading(true);
-    console.log('Update profile:', data);
-    // Here you would typically call a function to update the user profile in Firebase.
-    // For example: await updateProfile(user, { displayName: data.name, ... });
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setLoading(false);
-    toast({
-        title: "Profile Updated",
-        description: "Your profile information has been saved.",
-    });
+    try {
+        if (auth.currentUser) {
+             await updateProfile(auth.currentUser, {
+                displayName: data.name
+            });
+        }
+        // Here you would typically save the rest of the data (data.contact, data.dob, etc.)
+        // to a database like Firestore or Realtime Database.
+        // We'll simulate that with a timeout.
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        toast({
+            title: "Profile Updated",
+            description: "Your profile information has been successfully saved.",
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: error.message,
+        });
+    } finally {
+        setLoading(false);
+    }
   }
 
-  if (!user) {
-    return null;
+  if (authLoading || !user) {
+    return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight font-headline">User Profile</h1>
+                <p className="text-muted-foreground">Manage your account settings.</p>
+            </div>
+            <Card>
+                <CardHeader>
+                     <div className="flex items-center gap-4">
+                        <Skeleton className="h-16 w-16 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-6 w-[250px]" />
+                          <Skeleton className="h-4 w-[150px]" />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight font-headline">User Profile</h1>
-        <p className="text-muted-foreground">Manage your account settings.</p>
+        <p className="text-muted-foreground">Manage your account settings. Your data is saved automatically.</p>
       </div>
 
       <Card>
@@ -117,7 +194,7 @@ export default function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-2xl">{user.displayName || user.email}</CardTitle>
+              <CardTitle className="text-2xl">{form.watch('name') || user.email}</CardTitle>
               <CardDescription>Your personal account.</CardDescription>
             </div>
           </div>

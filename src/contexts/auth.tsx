@@ -53,13 +53,12 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   
     if (loading || !user) {
         return (
-            <div className="flex flex-col gap-8">
-                <Skeleton className="h-[60px] w-full" />
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <Skeleton className="lg:col-span-2 h-[300px]" />
-                    <div className="space-y-6">
-                        <Skeleton className="h-[150px]" />
-                        <Skeleton className="h-[150px]" />
+            <div className="flex-1 p-4 md:p-8">
+                <div className="flex flex-col gap-8">
+                    <Skeleton className="h-14 w-full" />
+                    <div className="flex flex-col gap-8">
+                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-64 w-full" />
                     </div>
                 </div>
             </div>
