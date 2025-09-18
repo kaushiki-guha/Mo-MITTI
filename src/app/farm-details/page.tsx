@@ -36,6 +36,22 @@ type FarmDetailsFormValues = z.infer<typeof farmDetailsSchema>;
 
 const LOCAL_STORAGE_KEY = 'farm_details';
 
+const exampleAnalysis: AnalyzeVegetationOutput = {
+    vegetationIndices: {
+        ndvi: 0.82,
+        savi: 0.65,
+        chlorophyllContent: 55.3,
+        moistureLevel: 68.5,
+    },
+    soilIndices: {
+        bi: 0.34,
+        ci: 0.12,
+    },
+    analysis: "The crop appears healthy and vigorous, with high NDVI and chlorophyll values indicating dense, thriving vegetation. Soil moisture is adequate.",
+    noiseRemoval: "Noise removal would typically involve atmospheric correction algorithms to account for haze and lighting variations.",
+    segmentation: "Segmentation would be performed using a color-based thresholding method to separate the green vegetation from the brown soil background."
+};
+
 export default function FarmDetailsPage() {
   const [loading, setLoading] = useState<number | null>(null);
 
@@ -239,7 +255,7 @@ export default function FarmDetailsPage() {
                   <Info className="h-4 w-4" />
                   <AlertTitle>No Crops Added</AlertTitle>
                   <AlertDescription>
-                    Click the "Add Crop" button to start analyzing your crops. You can add as many as you need.
+                    Click the "Add Crop" button to start analyzing your crops. You can add as many as you need. See an example below.
                   </AlertDescription>
                 </Alert>
               )}
@@ -373,6 +389,56 @@ export default function FarmDetailsPage() {
               </Button>
             </CardContent>
           </Card>
+
+           {fields.length === 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Example Analysis</CardTitle>
+                        <CardDescription>This is an example of the analysis you'll receive for each crop image you upload.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-col md:flex-row gap-6 items-center">
+                            <Image src="https://picsum.photos/seed/corn/200/200" alt="Example crop" width={200} height={200} className="rounded-md object-cover" data-ai-hint="corn field" />
+                            <div className="space-y-6 flex-1">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-primary mb-2">Vegetation Indices</h3>
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">NDVI</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.vegetationIndices.ndvi.toFixed(3)}</p>
+                                        </div>
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">SAVI</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.vegetationIndices.savi.toFixed(3)}</p>
+                                        </div>
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">Chlorophyll</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.vegetationIndices.chlorophyllContent.toFixed(2)}</p>
+                                        </div>
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">Moisture</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.vegetationIndices.moistureLevel.toFixed(2)}%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-semibold text-primary mb-2">Soil Indices</h3>
+                                    <div className="grid grid-cols-2 gap-4 text-center">
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">Brightness Index (BI)</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.soilIndices.bi.toFixed(3)}</p>
+                                        </div>
+                                        <div className="p-4 bg-muted rounded-lg">
+                                            <p className="text-sm text-muted-foreground">Color Index (CI)</p>
+                                            <p className="text-2xl font-bold">{exampleAnalysis.soilIndices.ci.toFixed(3)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </form>
       </Form>
     </div>
@@ -380,3 +446,4 @@ export default function FarmDetailsPage() {
 }
 
     
+
