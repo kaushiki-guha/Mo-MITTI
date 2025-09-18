@@ -4,7 +4,7 @@
 import { useAuth } from '@/contexts/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, CalendarIcon, Loader2 } from 'lucide-react';
+import { User, CalendarIcon, Loader2, LocateIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useToast } from '@/hooks/use-toast';
 
 const profileSchema = z.object({
     name: z.string().min(1, 'Name is required.'),
@@ -28,6 +29,10 @@ const profileSchema = z.object({
     farmingStatus: z.enum(['independent', 'organisation'], {
         required_error: "You need to select a farming status.",
     }),
+    location: z.object({
+        latitude: z.number(),
+        longitude: z.number(),
+    }).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -35,6 +40,8 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function ProfilePage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -45,6 +52,38 @@ export default function ProfilePage() {
     },
   });
 
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+        toast({
+            variant: "destructive",
+            title: "Geolocation Not Supported",
+            description: "Your browser does not support geolocation.",
+        });
+        return;
+    }
+
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords;
+            form.setValue('location', { latitude, longitude });
+            setLocationLoading(false);
+            toast({
+                title: "Location Captured",
+                description: "Your current location has been successfully set.",
+            });
+        },
+        (error) => {
+            setLocationLoading(false);
+            toast({
+                variant: "destructive",
+                title: "Location Error",
+                description: error.message,
+            });
+        }
+    );
+  };
+
   async function onSubmit(data: ProfileFormValues) {
     setLoading(true);
     console.log('Update profile:', data);
@@ -52,6 +91,10 @@ export default function ProfilePage() {
     // For example: await updateProfile(user, { displayName: data.name, ... });
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     setLoading(false);
+    toast({
+        title: "Profile Updated",
+        description: "Your profile information has been saved.",
+    });
   }
 
   if (!user) {
@@ -156,7 +199,7 @@ export default function ProfilePage() {
                             </FormItem>
                         )}
                     />
-                    <FormField
+                     <FormField
                         control={form.control}
                         name="farmingStatus"
                         render={({ field }) => (
@@ -190,6 +233,45 @@ export default function ProfilePage() {
                             </FormItem>
                         )}
                     />
+
+                    <div className="space-y-2">
+                        <FormLabel>Location</FormLabel>
+                        <div className="flex items-center gap-4">
+                            <Button type="button" variant="outline" onClick={getLocation} disabled={locationLoading}>
+                                {locationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LocateIcon className="mr-2 h-4 w-4" />}
+                                Get Current Location
+                            </Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                             <FormField
+                                control={form.control}
+                                name="location.latitude"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Latitude</FormLabel>
+                                    <FormControl>
+                                    <Input type="number" placeholder="Latitude" {...field} disabled value={field.value ?? ''} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="location.longitude"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Longitude</FormLabel>
+                                    <FormControl>
+                                    <Input type="number" placeholder="Longitude" {...field} disabled value={field.value ?? ''} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
                     <Button type="submit" disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Update Profile
