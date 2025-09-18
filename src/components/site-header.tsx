@@ -36,7 +36,7 @@ export function SiteHeader() {
       <div className="flex items-center gap-2">
         <SidebarTrigger />
         <Link href="/" className="flex items-center gap-2 group">
-          <Logo className="transition-all duration-300 group-hover:[filter:drop-shadow(0_0_4px_hsl(var(--primary)/0.7))]" />
+          <Logo className="text-[hsl(var(--primary))] transition-all duration-300 group-hover:[filter:drop-shadow(0_0_4px_hsl(var(--primary)/0.7))]" />
         </Link>
       </div>
       <div className="ml-auto flex items-center gap-2">
