@@ -37,7 +37,7 @@ const renderResult = (result: AskCropQuestionOutput) => (
         <div>
             <h3 className="text-xl font-semibold">Cultivation Steps</h3>
             <Accordion type="single" collapsible className="w-full" defaultValue="step-0">
-                 {result.cultivationSteps.map((step, index) => (
+                 {result.cultivationSteps && result.cultivationSteps.map((step, index) => (
                     <AccordionItem value={`step-${index}`} key={index}>
                         <AccordionTrigger className="text-lg font-medium">{step.step}</AccordionTrigger>
                         <AccordionContent>
