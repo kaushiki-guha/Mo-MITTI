@@ -46,7 +46,7 @@ export function SiteHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user.email?.[0].toUpperCase() ?? <User />}</AvatarFallback>
+                  <AvatarFallback>{user.displayName?.[0].toUpperCase() || user.email?.[0].toUpperCase() || <User />}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -54,7 +54,7 @@ export function SiteHeader() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user.email}
+                    {user.displayName || user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>

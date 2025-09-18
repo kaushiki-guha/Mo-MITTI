@@ -75,16 +75,15 @@ export default function ProfilePage() {
             });
         }
     }
-  }, [user, form]);
+  }, [user, form.reset]);
   
   // Auto-save on change
   useEffect(() => {
-    if (user) {
-        const subscription = form.watch((value) => {
-            localStorage.setItem(`${LOCAL_STORAGE_KEY}_${user.uid}`, JSON.stringify(value));
-        });
-        return () => subscription.unsubscribe();
-    }
+    if (!user) return;
+    const subscription = form.watch((value) => {
+        localStorage.setItem(`${LOCAL_STORAGE_KEY}_${user.uid}`, JSON.stringify(value));
+    });
+    return () => subscription.unsubscribe();
   }, [form, user]);
 
   const getLocation = () => {
