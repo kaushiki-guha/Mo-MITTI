@@ -93,15 +93,16 @@ export default function FarmDetailsPage() {
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    onChange: (files: FileList | null) => void,
-    onPreviewChange: (value: string | null) => void
+    index: number,
+    onChange: (files: FileList | null) => void
   ) => {
     const file = event.target.files?.[0];
     if (file) {
       onChange(event.target.files);
       const reader = new FileReader();
       reader.onloadend = () => {
-        onPreviewChange(reader.result as string);
+        form.setValue(`crops.${index}.preview`, reader.result as string);
+        form.setValue(`crops.${index}.analysisResult`, undefined); // Reset analysis on new image
       };
       reader.readAsDataURL(file);
     }
@@ -349,9 +350,7 @@ export default function FarmDetailsPage() {
                                 <Input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => {
-                                        handleFileChange(e, (files) => onChange(files), (preview) => form.setValue(`crops.${index}.preview`, preview));
-                                    }}
+                                    onChange={(e) => handleFileChange(e, index, onChange)}
                                 />
                                 </FormControl>
                                 <FormMessage>{fieldState.error?.message}</FormMessage>
@@ -511,4 +510,4 @@ export default function FarmDetailsPage() {
 
     
 
-
+    
