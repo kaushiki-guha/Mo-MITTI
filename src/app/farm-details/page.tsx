@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, X, Plus, Trash2, Info } from 'lucide-react';
+import { Loader2, X, Plus, Trash2, Info, BrainCircuit } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeVegetation, AnalyzeVegetationOutput } from '@/ai/flows/vegetation-analysis';
+import { suggestCropsForLand, SuggestCropsForLandOutput } from '@/ai/flows/suggest-crops-for-land';
 import { Separator } from '@/components/ui/separator';
 import { Mascot } from '@/components/mascot';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -54,6 +55,9 @@ const exampleAnalysis: AnalyzeVegetationOutput = {
 
 export default function FarmDetailsPage() {
   const [loading, setLoading] = useState<number | null>(null);
+  const [suggestingCrops, setSuggestingCrops] = useState(false);
+  const [cropSuggestions, setCropSuggestions] = useState<SuggestCropsForLandOutput | null>(null);
+
 
   const form = useForm<FarmDetailsFormValues>({
     resolver: zodResolver(farmDetailsSchema),
@@ -76,6 +80,9 @@ export default function FarmDetailsPage() {
         landShapeImage: null, 
         crops: parsedData.crops.map((crop: any) => ({...crop, growthImage: null})) 
       });
+      if (parsedData.cropSuggestions) {
+          setCropSuggestions(parsedData.cropSuggestions);
+      }
     }
   }, [form]);
 
@@ -107,6 +114,7 @@ export default function FarmDetailsPage() {
         const reader = new FileReader();
         reader.onloadend = () => {
             form.setValue('landShapePreview', reader.result as string);
+            setCropSuggestions(null); // Clear old suggestions
         };
         reader.readAsDataURL(file);
     }
@@ -115,6 +123,7 @@ export default function FarmDetailsPage() {
   const clearLandShapePreview = () => {
     form.setValue('landShapeImage', null);
     form.setValue('landShapePreview', '');
+    setCropSuggestions(null);
   }
 
   async function analyzeCrop(index: number) {
@@ -145,6 +154,28 @@ export default function FarmDetailsPage() {
     };
   }
 
+  const handleSuggestCrops = async () => {
+    const { landShapePreview, landSize, irrigationSystem } = form.getValues();
+    if (!landShapePreview || !landSize || !irrigationSystem) {
+        // Maybe show a toast message to fill out the form
+        return;
+    }
+    setSuggestingCrops(true);
+    setCropSuggestions(null);
+    try {
+        const response = await suggestCropsForLand({
+            photoDataUri: landShapePreview,
+            landSize,
+            irrigationSystem
+        });
+        setCropSuggestions(response);
+    } catch (error) {
+        console.error("Error suggesting crops:", error);
+    } finally {
+        setSuggestingCrops(false);
+    }
+  }
+
   const saveData = () => {
     const data = form.getValues();
     const dataToSave = {
@@ -152,7 +183,8 @@ export default function FarmDetailsPage() {
         crops: data.crops.map(crop => {
             const { growthImage, ...rest } = crop; // exclude FileList
             return rest;
-        })
+        }),
+        cropSuggestions,
     };
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
   }
@@ -161,7 +193,7 @@ export default function FarmDetailsPage() {
   useEffect(() => {
     const subscription = form.watch(() => saveData());
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, cropSuggestions]);
 
 
   return (
@@ -237,12 +269,44 @@ export default function FarmDetailsPage() {
                     )}
                 />
                 {form.watch('landShapePreview') && (
-                    <div className="mt-4">
+                    <div className="mt-4 flex flex-col items-center gap-4">
                         <Image src={form.watch('landShapePreview')!} alt="Land shape preview" width={300} height={300} className="rounded-md object-contain w-full" />
+                         <Button type="button" onClick={handleSuggestCrops} disabled={suggestingCrops || !form.watch('landSize') || !form.watch('irrigationSystem')}>
+                            {suggestingCrops ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BrainCircuit className="mr-2 h-5 w-5" />}
+                            Suggest Crops
+                        </Button>
                     </div>
                 )}
                 </CardContent>
             </Card>
+            
+            {(suggestingCrops || cropSuggestions) && (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>AI Crop Suggestions</CardTitle>
+                        <CardDescription>Based on your land data, here are some recommended crops.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {suggestingCrops ? (
+                             <div className="space-y-4">
+                                <Skeleton className="h-6 w-[200px]" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-[300px]" />
+                            </div>
+                        ) : cropSuggestions ? (
+                            <div className="space-y-6">
+                                {cropSuggestions.suggestions.map((suggestion, index) => (
+                                    <div key={index} className="p-4 border rounded-lg">
+                                        <h4 className="text-lg font-semibold text-primary">{suggestion.cropName}</h4>
+                                        <p className="text-sm text-muted-foreground mt-1"><strong>Estimated Yield:</strong> {suggestion.estimatedYield}</p>
+                                        <p className="mt-2 text-sm">{suggestion.reasoning}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : null}
+                    </CardContent>
+                 </Card>
+            )}
 
           <Card>
             <CardHeader>
@@ -446,4 +510,5 @@ export default function FarmDetailsPage() {
 }
 
     
+
 

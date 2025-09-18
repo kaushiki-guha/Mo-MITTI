@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import {Home, Stethoscope, User, ClipboardList, Leaf} from 'lucide-react';
+import {Home, Stethoscope, User, ClipboardList, Leaf, BrainCircuit} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './logo';
