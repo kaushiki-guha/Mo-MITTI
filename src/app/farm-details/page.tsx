@@ -10,12 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, X, Plus, Trash2 } from 'lucide-react';
+import { Loader2, X, Plus, Trash2, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { analyzeVegetation, AnalyzeVegetationOutput } from '@/ai/flows/vegetation-analysis';
 import { Separator } from '@/components/ui/separator';
 import { Mascot } from '@/components/mascot';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const cropSchema = z.object({
   name: z.string().min(1, 'Crop name is required.'),
@@ -27,7 +28,7 @@ const cropSchema = z.object({
 const farmDetailsSchema = z.object({
   landSize: z.string().min(1, 'Please enter the land size.'),
   landShapeImage: z.any().optional(),
-  crops: z.array(cropSchema).min(1, 'Please add at least one crop.'),
+  crops: z.array(cropSchema),
   irrigationSystem: z.string().min(1, 'Please describe the irrigation system.'),
 });
 
@@ -40,7 +41,7 @@ export default function FarmDetailsPage() {
   const form = useForm<FarmDetailsFormValues>({
     resolver: zodResolver(farmDetailsSchema),
     defaultValues: {
-      crops: [{ name: '', growthImage: null }],
+      crops: [],
     },
   });
 
@@ -83,6 +84,10 @@ export default function FarmDetailsPage() {
   }
 
   async function onSubmit(data: FarmDetailsFormValues) {
+    if (data.crops.length === 0) {
+      // Don't submit if there are no crops
+      return;
+    }
     setLoading(true);
     
     const analysisPromises = data.crops.map(async (crop, index) => {
@@ -198,6 +203,15 @@ export default function FarmDetailsPage() {
               <CardDescription>Add the crops currently growing in your field and an image for analysis.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {fields.length === 0 && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>No Crops Added</AlertTitle>
+                  <AlertDescription>
+                    Click the "Add Crop" button to start analyzing your crops. You can add as many as you need.
+                  </AlertDescription>
+                </Alert>
+              )}
               {fields.map((item, index) => (
                 <div key={item.id} className="p-4 border rounded-lg space-y-4 relative">
                   <div className="grid gap-4 md:grid-cols-2">
@@ -242,17 +256,15 @@ export default function FarmDetailsPage() {
                     </div>
                   )}
 
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   
                   {(loading || form.watch(`crops.${index}.analysisResult`)) && (
                     <div className="pt-4 space-y-6">
@@ -323,12 +335,12 @@ export default function FarmDetailsPage() {
                 onClick={() => append({ name: '', growthImage: null })}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Another Crop
+                Add Crop
               </Button>
             </CardContent>
           </Card>
 
-          <Button type="submit" disabled={loading} size="lg">
+          <Button type="submit" disabled={loading || fields.length === 0} size="lg">
             {loading ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing All Crops...</>
             ) : (
