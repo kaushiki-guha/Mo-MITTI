@@ -42,7 +42,7 @@ export function MainSidebar() {
     },
     {
       href: '/vegetation-analysis',
-      label: 'Vegetation Analysis',
+      label: 'Vegetation and Soil Analysis',
       icon: Leaf,
     },
     {
