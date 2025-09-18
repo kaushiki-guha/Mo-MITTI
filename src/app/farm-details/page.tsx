@@ -101,8 +101,7 @@ export default function FarmDetailsPage() {
       onChange(event.target.files);
       const reader = new FileReader();
       reader.onloadend = () => {
-        form.setValue(`crops.${index}.preview`, reader.result as string);
-        form.setValue(`crops.${index}.analysisResult`, undefined); // Reset analysis on new image
+        update(index, { ...form.getValues(`crops.${index}`), preview: reader.result as string, analysisResult: undefined });
       };
       reader.readAsDataURL(file);
     }

@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const SuggestCropsForLandInputSchema = z.object({
+const SuggestCropsForLandInputSchema = z.object({
     photoDataUri: z
         .string()
         .describe(
@@ -27,7 +27,7 @@ const CropSuggestionSchema = z.object({
     estimatedYield: z.string().describe('An estimated potential yield for the crop in the given land size.'),
 });
 
-export const SuggestCropsForLandOutputSchema = z.object({
+const SuggestCropsForLandOutputSchema = z.object({
     suggestions: z.array(CropSuggestionSchema).describe('A list of crop suggestions.'),
 });
 export type SuggestCropsForLandOutput = z.infer<typeof SuggestCropsForLandOutputSchema>;
