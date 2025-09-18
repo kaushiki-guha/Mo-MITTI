@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, User, CheckCircle2, History, Trash2 } from 'lucide-react';
+import { Loader2, User, CheckCircle2, History, Trash2, Droplets, Leaf, Shield } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mascot } from '@/components/mascot';
@@ -27,6 +27,74 @@ type ChatHistoryItem = {
     result: AskCropQuestionOutput;
     timestamp: string;
 };
+
+const renderResult = (result: AskCropQuestionOutput) => (
+    <div className="prose prose-sm dark:prose-invert max-w-none space-y-6">
+        <p className="lead text-lg">{result.introduction}</p>
+
+        <Separator />
+        
+        <div>
+            <h3 className="text-xl font-semibold">Cultivation Steps</h3>
+            <Accordion type="single" collapsible className="w-full" defaultValue="step-0">
+                 {result.cultivationSteps.map((step, index) => (
+                    <AccordionItem value={`step-${index}`} key={index}>
+                        <AccordionTrigger className="text-lg font-medium">{step.step}</AccordionTrigger>
+                        <AccordionContent>
+                            <ul className="space-y-3 list-none p-0">
+                                {step.details.map((detail, i) => (
+                                    <li key={i} className="flex items-start gap-3">
+                                        <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                                        <div>
+                                            <p className="font-semibold">{detail.point}</p>
+                                            <p className="text-muted-foreground">{detail.explanation}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                 ))}
+            </Accordion>
+        </div>
+
+        <Separator />
+
+        <div className="grid md:grid-cols-3 gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Droplets className="text-primary"/> Irrigation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <p><strong>Frequency:</strong> {result.irrigation.frequency}</p>
+                    <p><strong>Method:</strong> {result.irrigation.method}</p>
+                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.irrigation.notes}</p>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Leaf className="text-primary"/> Fertilizers</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <p><strong>Recommendation:</strong> {result.fertilizers.recommendation}</p>
+                    <p><strong>Schedule:</strong> {result.fertilizers.schedule}</p>
+                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.fertilizers.notes}</p>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Shield className="text-primary"/> Pesticides</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <p><strong>Recommendation:</strong> {result.pesticides.recommendation}</p>
+                    <p><strong>Schedule:</strong> {result.pesticides.schedule}</p>
+                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.pesticides.notes}</p>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+);
+
 
 export default function ChatPage() {
   const [loading, setLoading] = useState(false);
@@ -145,28 +213,7 @@ export default function ChatPage() {
                 <Skeleton className="h-4 w-full" />
               </div>
             ) : result ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
-                <p className="lead">{result.introduction}</p>
-
-                <div>
-                    <h3 className="text-lg font-semibold">Key Recommendations</h3>
-                    <ul className="space-y-2 list-none p-0">
-                        {result.keyRecommendations.map((rec, index) => (
-                            <li key={index} className="flex items-start gap-3">
-                                <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                                <span>{rec}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                    <h3 className="text-lg font-semibold">Detailed Explanation</h3>
-                    <p>{result.detailedExplanation}</p>
-                </div>
-              </div>
+              renderResult(result)
             ) : null}
           </CardContent>
         </Card>
@@ -196,26 +243,8 @@ export default function ChatPage() {
                        <span className="text-xs text-muted-foreground">{new Date(item.timestamp).toLocaleString()}</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent>
-                      <div className="prose prose-sm dark:prose-invert max-w-none space-y-4 p-4">
-                        <p className="lead">{item.result.introduction}</p>
-                        <div>
-                            <h3 className="text-lg font-semibold">Key Recommendations</h3>
-                            <ul className="space-y-2 list-none p-0">
-                                {item.result.keyRecommendations.map((rec, i) => (
-                                    <li key={i} className="flex items-start gap-3">
-                                        <CheckCircle2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                                        <span>{rec}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <Separator />
-                        <div>
-                            <h3 className="text-lg font-semibold">Detailed Explanation</h3>
-                            <p>{item.result.detailedExplanation}</p>
-                        </div>
-                      </div>
+                  <AccordionContent className="p-4">
+                      {renderResult(item.result)}
                   </AccordionContent>
                 </AccordionItem>
               ))}
