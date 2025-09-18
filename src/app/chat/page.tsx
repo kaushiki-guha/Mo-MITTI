@@ -61,36 +61,42 @@ const renderResult = (result: AskCropQuestionOutput) => (
         <Separator />
 
         <div className="grid md:grid-cols-3 gap-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg"><Droplets className="text-primary"/> Irrigation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                    <p><strong>Frequency:</strong> {result.irrigation.frequency}</p>
-                    <p><strong>Method:</strong> {result.irrigation.method}</p>
-                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.irrigation.notes}</p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg"><Leaf className="text-primary"/> Fertilizers</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                    <p><strong>Recommendation:</strong> {result.fertilizers.recommendation}</p>
-                    <p><strong>Schedule:</strong> {result.fertilizers.schedule}</p>
-                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.fertilizers.notes}</p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg"><Shield className="text-primary"/> Pesticides</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                    <p><strong>Recommendation:</strong> {result.pesticides.recommendation}</p>
-                    <p><strong>Schedule:</strong> {result.pesticides.schedule}</p>
-                    <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.pesticides.notes}</p>
-                </CardContent>
-            </Card>
+            {result.irrigation && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg"><Droplets className="text-primary"/> Irrigation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <p><strong>Frequency:</strong> {result.irrigation.frequency}</p>
+                        <p><strong>Method:</strong> {result.irrigation.method}</p>
+                        <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.irrigation.notes}</p>
+                    </CardContent>
+                </Card>
+            )}
+             {result.fertilizers && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg"><Leaf className="text-primary"/> Fertilizers</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <p><strong>Recommendation:</strong> {result.fertilizers.recommendation}</p>
+                        <p><strong>Schedule:</strong> {result.fertilizers.schedule}</p>
+                        <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.fertilizers.notes}</p>
+                    </CardContent>
+                </Card>
+            )}
+             {result.pesticides && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg"><Shield className="text-primary"/> Pesticides</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        <p><strong>Recommendation:</strong> {result.pesticides.recommendation}</p>
+                        <p><strong>Schedule:</strong> {result.pesticides.schedule}</p>
+                        <p className="text-sm text-muted-foreground"><strong>Notes:</strong> {result.pesticides.notes}</p>
+                    </CardContent>
+                </Card>
+             )}
         </div>
     </div>
 );
