@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,10 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X, History, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 const diseaseSchema = z.object({
   image: z
@@ -24,11 +26,25 @@ const diseaseSchema = z.object({
 
 type DiseaseFormValues = z.infer<typeof diseaseSchema>;
 
+type HistoryItem = {
+    preview: string;
+    result: DetectDiseaseOutput;
+    timestamp: string;
+};
+
 export default function DiseaseDetectionPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DetectDiseaseOutput | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('disease_detection_history');
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+  }, []);
 
   const form = useForm<DiseaseFormValues>({
     resolver: zodResolver(diseaseSchema),
@@ -56,6 +72,11 @@ export default function DiseaseDetectionPage() {
     }
   };
 
+  const clearHistory = () => {
+      setHistory([]);
+      localStorage.removeItem('disease_detection_history');
+  }
+
   async function onSubmit(data: DiseaseFormValues) {
     const file = data.image[0];
     if (!file) return;
@@ -70,6 +91,10 @@ export default function DiseaseDetectionPage() {
       try {
         const response = await detectDisease({ photoDataUri: base64data });
         setResult(response);
+        const newHistoryItem: HistoryItem = { preview: base64data, result: response, timestamp: new Date().toISOString() };
+        const updatedHistory = [newHistoryItem, ...history];
+        setHistory(updatedHistory);
+        localStorage.setItem('disease_detection_history', JSON.stringify(updatedHistory));
       } catch (error) {
         console.error('Error detecting disease:', error);
         // You could show a toast notification here
@@ -127,7 +152,7 @@ export default function DiseaseDetectionPage() {
         </CardContent>
       </Card>
       
-      {preview && (
+      {preview && !result && (
         <Card className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
@@ -158,26 +183,87 @@ export default function DiseaseDetectionPage() {
                  <Skeleton className="h-4 w-[300px]" />
               </div>
             ) : result ? (
-              <div className="space-y-4">
-                {result.diseaseIdentification.diseaseDetected ? (
-                  <>
-                    <h3 className="text-xl font-semibold text-destructive">{result.diseaseIdentification.diseaseName}</h3>
-                    {result.diseaseIdentification.confidenceLevel && (
-                        <div className="space-y-1">
-                            <p className="text-sm text-muted-foreground">Confidence: {Math.round(result.diseaseIdentification.confidenceLevel * 100)}%</p>
-                            <Progress value={result.diseaseIdentification.confidenceLevel * 100} className="w-full max-w-sm"/>
+              <div className="flex flex-col md:flex-row gap-6">
+                {preview && <Image src={preview} alt="Analyzed image" width={200} height={200} className="rounded-md object-contain" />}
+                <div className="space-y-4 flex-1">
+                    {result.diseaseIdentification.diseaseDetected ? (
+                    <>
+                        <h3 className="text-xl font-semibold text-destructive">{result.diseaseIdentification.diseaseName}</h3>
+                        {result.diseaseIdentification.confidenceLevel && (
+                            <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Confidence: {Math.round(result.diseaseIdentification.confidenceLevel * 100)}%</p>
+                                <Progress value={result.diseaseIdentification.confidenceLevel * 100} className="w-full max-w-sm"/>
+                            </div>
+                        )}
+                        <div>
+                            <h4 className="font-semibold">Suggested Remedies:</h4>
+                            <p className="text-muted-foreground">{result.suggestedRemedies}</p>
                         </div>
+                    </>
+                    ) : (
+                    <p className="text-lg text-primary">No disease detected. The plant appears to be healthy.</p>
                     )}
-                    <div>
-                        <h4 className="font-semibold">Suggested Remedies:</h4>
-                        <p className="text-muted-foreground">{result.suggestedRemedies}</p>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-lg text-primary">No disease detected. The plant appears to be healthy.</p>
-                )}
+                </div>
               </div>
             ) : null}
+          </CardContent>
+        </Card>
+      )}
+
+      {history.length > 0 && (
+        <Card className="animate-fade-in-up">
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              <span className="flex items-center gap-2">
+                <History className="w-5 h-5" />
+                History
+              </span>
+              <Button variant="ghost" size="sm" onClick={clearHistory}>
+                <Trash2 className="mr-2" /> Clear History
+              </Button>
+            </CardTitle>
+            <CardDescription>Review your past analyses.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <Accordion type="single" collapsible className="w-full">
+                {history.map((item, index) => (
+                    <AccordionItem value={`item-${index}`} key={index}>
+                        <AccordionTrigger>
+                           <div className="flex items-center gap-4">
+                                <Image src={item.preview} alt="History item preview" width={40} height={40} className="rounded-md object-cover" />
+                                <div className="flex flex-col text-left">
+                                    <span>{item.result.diseaseIdentification.diseaseDetected ? item.result.diseaseIdentification.diseaseName : "Healthy"}</span>
+                                    <span className="text-xs text-muted-foreground">{new Date(item.timestamp).toLocaleString()}</span>
+                                </div>
+                           </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                           <div className="flex flex-col md:flex-row gap-6 p-4">
+                                <Image src={item.preview} alt="Analyzed image" width={200} height={200} className="rounded-md object-contain" />
+                                <div className="space-y-4 flex-1">
+                                    {item.result.diseaseIdentification.diseaseDetected ? (
+                                    <>
+                                        <h3 className="text-xl font-semibold text-destructive">{item.result.diseaseIdentification.diseaseName}</h3>
+                                        {item.result.diseaseIdentification.confidenceLevel && (
+                                            <div className="space-y-1">
+                                                <p className="text-sm text-muted-foreground">Confidence: {Math.round(item.result.diseaseIdentification.confidenceLevel * 100)}%</p>
+                                                <Progress value={item.result.diseaseIdentification.confidenceLevel * 100} className="w-full max-w-sm"/>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <h4 className="font-semibold">Suggested Remedies:</h4>
+                                            <p className="text-muted-foreground">{item.result.suggestedRemedies}</p>
+                                        </div>
+                                    </>
+                                    ) : (
+                                    <p className="text-lg text-primary">No disease detected. The plant appears to be healthy.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+             </Accordion>
           </CardContent>
         </Card>
       )}

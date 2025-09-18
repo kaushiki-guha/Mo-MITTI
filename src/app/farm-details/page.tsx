@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Loader2, X, Plus, Trash2, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,7 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const cropSchema = z.object({
   name: z.string().min(1, 'Crop name is required.'),
-  growthImage: z.any().refine((files) => files?.length === 1, 'Please upload an image.'),
+  growthImage: z.any().refine((files) => files?.length > 0, 'Please upload an image.'),
   preview: z.string().optional(),
   analysisResult: z.custom<AnalyzeVegetationOutput>().optional(),
 });
@@ -28,22 +27,41 @@ const cropSchema = z.object({
 const farmDetailsSchema = z.object({
   landSize: z.string().min(1, 'Please enter the land size.'),
   landShapeImage: z.any().optional(),
+  landShapePreview: z.string().optional(),
   crops: z.array(cropSchema),
   irrigationSystem: z.string().min(1, 'Please describe the irrigation system.'),
 });
 
 type FarmDetailsFormValues = z.infer<typeof farmDetailsSchema>;
 
+const LOCAL_STORAGE_KEY = 'farm_details';
+
 export default function FarmDetailsPage() {
-  const [loading, setLoading] = useState(false);
-  const [landShapePreview, setLandShapePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<number | null>(null);
 
   const form = useForm<FarmDetailsFormValues>({
     resolver: zodResolver(farmDetailsSchema),
     defaultValues: {
+      landSize: '',
+      irrigationSystem: '',
       crops: [],
+      landShapeImage: null,
+      landShapePreview: ''
     },
   });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      // Reset form with saved data, but clear file inputs
+      form.reset({
+        ...parsedData,
+        landShapeImage: null, 
+        crops: parsedData.crops.map((crop: any) => ({...crop, growthImage: null})) 
+      });
+    }
+  }, [form]);
 
   const { fields, append, remove, update } = useFieldArray({
     control: form.control,
@@ -72,61 +90,73 @@ export default function FarmDetailsPage() {
         form.setValue('landShapeImage', event.target.files);
         const reader = new FileReader();
         reader.onloadend = () => {
-            setLandShapePreview(reader.result as string);
+            form.setValue('landShapePreview', reader.result as string);
         };
         reader.readAsDataURL(file);
     }
   }
 
   const clearLandShapePreview = () => {
-    setLandShapePreview(null);
     form.setValue('landShapeImage', null);
+    form.setValue('landShapePreview', '');
   }
 
-  async function onSubmit(data: FarmDetailsFormValues) {
-    if (data.crops.length === 0) {
-      // Don't submit if there are no crops
-      return;
-    }
-    setLoading(true);
+  async function analyzeCrop(index: number) {
+    setLoading(index);
     
-    const analysisPromises = data.crops.map(async (crop, index) => {
-      // Clear previous results before new analysis
-      update(index, { ...crop, analysisResult: undefined });
+    const crop = form.getValues(`crops.${index}`);
+    const file = crop.growthImage?.[0];
+    
+    if (!file) {
+        setLoading(null);
+        return;
+    };
 
-      const file = crop.growthImage[0];
-      if (!file) return null;
+    update(index, { ...crop, analysisResult: undefined });
 
-      return new Promise<AnalyzeVegetationOutput | null>((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          try {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        try {
             const response = await analyzeVegetation({ photoDataUri: base64data });
             form.setValue(`crops.${index}.analysisResult`, response);
-            resolve(response);
-          } catch (error) {
+        } catch (error) {
             console.error('Error analyzing vegetation:', error);
-            resolve(null);
-          }
-        };
-      });
-    });
-
-    await Promise.all(analysisPromises);
-    setLoading(false);
+        } finally {
+            setLoading(null);
+        }
+    };
   }
+
+  const saveData = () => {
+    const data = form.getValues();
+    const dataToSave = {
+        ...data,
+        crops: data.crops.map(crop => {
+            const { growthImage, ...rest } = crop; // exclude FileList
+            return rest;
+        })
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
+  }
+
+  // Auto-save on change
+  useEffect(() => {
+    const subscription = form.watch(() => saveData());
+    return () => subscription.unsubscribe();
+  }, [form]);
+
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight font-headline">Farm Details</h1>
-        <p className="text-muted-foreground">Enter details about your farm for analysis and recommendations.</p>
+        <p className="text-muted-foreground">Enter details about your farm. All data is saved automatically.</p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Farm Information</CardTitle>
@@ -168,30 +198,31 @@ export default function FarmDetailsPage() {
                 <CardHeader>
                     <CardTitle className="flex justify-between items-center">
                     <span>Farm Land Shape</span>
-                     {landShapePreview && <Button variant="ghost" size="icon" onClick={clearLandShapePreview}><X className="h-4 w-4" /></Button>}
+                     {form.watch('landShapePreview') && <Button variant="ghost" size="icon" onClick={clearLandShapePreview}><X className="h-4 w-4" /></Button>}
                     </CardTitle>
                     <CardDescription>Upload a satellite or drone image of your farm land. You can get this from a service like USGS EarthExplorer or by taking a screenshot from Google Maps.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                <FormField
+                <Controller
                     control={form.control}
                     name="landShapeImage"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormControl>
-                            <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleLandShapeFileChange}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+                    render={({ field: { onChange, value, ...field }, fieldState }) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleLandShapeFileChange}
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
                     )}
                 />
-                {landShapePreview && (
+                {form.watch('landShapePreview') && (
                     <div className="mt-4">
-                        <Image src={landShapePreview} alt="Land shape preview" width={300} height={300} className="rounded-md object-contain w-full" />
+                        <Image src={form.watch('landShapePreview')!} alt="Land shape preview" width={300} height={300} className="rounded-md object-contain w-full" />
                     </div>
                 )}
                 </CardContent>
@@ -214,7 +245,7 @@ export default function FarmDetailsPage() {
               )}
               {fields.map((item, index) => (
                 <div key={item.id} className="p-4 border rounded-lg space-y-4 relative">
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2 items-start">
                     <FormField
                       control={form.control}
                       name={`crops.${index}.name`}
@@ -241,7 +272,6 @@ export default function FarmDetailsPage() {
                                     onChange={(e) => {
                                         handleFileChange(e, (files) => onChange(files), (preview) => form.setValue(`crops.${index}.preview`, preview));
                                     }}
-                                    {...field}
                                 />
                                 </FormControl>
                                 <FormMessage>{fieldState.error?.message}</FormMessage>
@@ -251,8 +281,12 @@ export default function FarmDetailsPage() {
                   </div>
 
                   {form.watch(`crops.${index}.preview`) && (
-                     <div className="flex justify-center">
+                     <div className="flex flex-col items-center gap-4">
                         <Image src={form.watch(`crops.${index}.preview`)!} alt="Crop preview" width={200} height={200} className="rounded-md object-contain" />
+                        <Button type="button" onClick={() => analyzeCrop(index)} disabled={loading === index || !form.watch(`crops.${index}.growthImage`)}>
+                            {loading === index ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mascot className="mr-2 h-5 w-5" />}
+                            Analyze Crop
+                        </Button>
                     </div>
                   )}
 
@@ -266,11 +300,11 @@ export default function FarmDetailsPage() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                   
-                  {(loading || form.watch(`crops.${index}.analysisResult`)) && (
+                  {(loading === index || form.watch(`crops.${index}.analysisResult`)) && (
                     <div className="pt-4 space-y-6">
                         <Separator />
                          <h4 className="text-lg font-semibold -mb-2">Spectral Analysis</h4>
-                         {loading && !form.watch(`crops.${index}.analysisResult`) ? (
+                         {loading === index && !form.watch(`crops.${index}.analysisResult`) ? (
                               <div className="space-y-4">
                                 <Skeleton className="h-6 w-[200px]" />
                                 <Skeleton className="h-4 w-full" />
@@ -332,21 +366,13 @@ export default function FarmDetailsPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => append({ name: '', growthImage: null })}
+                onClick={() => append({ name: '', growthImage: null, preview: '' })}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Crop
               </Button>
             </CardContent>
           </Card>
-
-          <Button type="submit" disabled={loading || fields.length === 0} size="lg">
-            {loading ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing All Crops...</>
-            ) : (
-              <> <Mascot className="mr-2 h-6 w-6" /> Analyze All Crops</>
-            )}
-          </Button>
         </form>
       </Form>
     </div>
